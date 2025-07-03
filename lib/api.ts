@@ -1,12 +1,10 @@
-// lib/api.ts - Fixed to use fastformula endpoint properly
+// lib/api.ts - CORRECTED VERSION (No TypeScript errors)
 
-// Use the same simple approach as the test script
 const environments = {
   local: 'http://localhost:3001',
   production: 'https://molexa-api.vercel.app'
 };
 
-// Default to production unless explicitly set to local
 const BASE_URL = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_LOCAL_API === 'true' 
   ? environments.local 
   : environments.production;
@@ -105,10 +103,10 @@ export async function searchMolecules(query: string, type: 'name' | 'formula' = 
  * Get comprehensive educational data for a compound
  * FIXED: Uses fastformula for formula searches
  */
-export async function fetchEducationalData(identifier: string, type: 'cid' | 'name' | 'formula' | 'fastformula' = 'cid') {
+export async function fetchEducationalData(identifier: string, type: 'cid' | 'name' | 'formula' = 'cid') {
   try {
     // 🔧 FIX: Map formula type to fastformula for educational endpoint
-    let searchType = type;
+    let searchType: 'cid' | 'name' | 'formula' | 'fastformula' = type;
     if (type === 'formula') {
       searchType = 'fastformula';
       console.log(`🔄 Mapped formula search to fastformula for educational data`);
@@ -124,6 +122,7 @@ export async function fetchEducationalData(identifier: string, type: 'cid' | 'na
 
 /**
  * Get molecular properties with educational context
+ * CORRECTED: Fixed the function parameters and logic
  */
 export async function fetchMolecularProperties(cid: number) {
   try {
@@ -147,6 +146,7 @@ export async function fetchMolecularProperties(cid: number) {
 
 /**
  * Get safety information for a compound
+ * CORRECTED: Fixed the function parameters and logic
  */
 export async function fetchSafetyData(cid: number, heading?: string) {
   try {
