@@ -3,7 +3,7 @@
 // Use the same simple approach as the test script
 const environments = {
   local: 'http://localhost:3001',
-  production: 'https://molexa.org'
+  production: 'https://www.molexa.org'
 };
 
 // Default to production unless explicitly set to local
