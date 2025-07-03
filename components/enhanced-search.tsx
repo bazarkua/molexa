@@ -26,7 +26,7 @@ export function EnhancedSearch({ onFetchMolecule, className }: EnhancedSearchPro
   
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const timeoutRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Formula validation regex - basic chemical formula pattern
   const formulaPattern = /^[A-Z][a-z]?(\d+)?([A-Z][a-z]?(\d+)?)*$/

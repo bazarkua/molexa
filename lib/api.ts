@@ -150,17 +150,20 @@ export async function fetchSafetyData(cid: number, heading?: string) {
     const params = heading ? `?heading=${encodeURIComponent(heading)}` : '';
     const data = await apiCall(`/api/pugview/compound/${cid}/safety${params}`, 0); // No retries for safety data
     return data;
-  } catch (error) {
-    // Safety data is often not available, so we handle this gracefully
-    if (error.message?.includes('Rate limit') || error.message?.includes('429')) {
-      throw new Error('Safety data temporarily unavailable (rate limit)');
-    } else if (error.message?.includes('404') || error.message?.includes('not available')) {
-      throw new Error('Safety data not available for this compound');
+  } catch (error: unknown) {
+  // Safety data is often not available, so we handle this gracefully
+  if (error instanceof Error) {
+    const msg = error.message;
+    if (msg.includes("Rate limit") || msg.includes("429")) {
+      throw new Error("Safety data temporarily unavailable (rate limit)");
+    } else if (msg.includes("404") || msg.includes("not available")) {
+      throw new Error("Safety data not available for this compound");
     }
-    throw error;
   }
+  // If it wasn’t an Error, or didn’t match our cases, re-throw it
+  throw error;
 }
-
+}
 /**
  * Get 3D structure data (SDF)
  * Matches test script pattern: /api/pubchem/compound/cid/{cid}/SDF

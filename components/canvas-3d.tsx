@@ -5,6 +5,7 @@ import * as THREE from "three"
 import { useMoleculeStore } from "@/lib/store"
 import { MousePointer2, RotateCcw, ZoomIn } from "lucide-react"
 import Image from "next/image"
+import type { MoleculeData } from "@/lib/types";
 
 // Type definitions for better IDE support
 interface AtomData {
@@ -19,29 +20,22 @@ interface BondData {
   type: "single" | "double" | "triple"
 }
 
-interface MoleculeData {
-  formula: string
-  elements: Record<string, { radius: number; color: string }>
-  atoms: AtomData[]
-  bonds: BondData[]
-}
-
 // Custom orbit controls implementation to avoid ESM import issues
 class SimpleOrbitControls {
-  private camera: THREE.PerspectiveCamera
-  private domElement: HTMLElement
-  private target: THREE.Vector3
-  private spherical: THREE.Spherical
-  private sphericalDelta: THREE.Spherical
-  private scale: number
-  private zoomSpeed: number
-  private rotateSpeed: number
-  private enableDamping: boolean
-  private dampingFactor: number
-  private minDistance: number
-  private maxDistance: number
-  private isMouseDown: boolean
-  private mouseButtons: { LEFT: number; MIDDLE: number; RIGHT: number }
+  public camera: THREE.PerspectiveCamera
+  public domElement: HTMLElement
+  public target: THREE.Vector3
+  public spherical: THREE.Spherical
+  public sphericalDelta: THREE.Spherical
+  public scale: number
+  public zoomSpeed: number
+  public rotateSpeed: number
+  public enableDamping: boolean
+  public dampingFactor: number
+  public minDistance: number
+  public maxDistance: number
+  public isMouseDown: boolean
+  public mouseButtons: { LEFT: number; MIDDLE: number; RIGHT: number }
 
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement) {
     this.camera = camera
