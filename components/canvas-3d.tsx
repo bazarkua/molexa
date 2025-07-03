@@ -5,7 +5,6 @@ import * as THREE from "three"
 import { useMoleculeStore } from "@/lib/store"
 import { MousePointer2, RotateCcw, ZoomIn } from "lucide-react"
 import Image from "next/image"
-import type { MoleculeData } from "@/lib/types";
 
 // Type definitions for better IDE support
 interface AtomData {
@@ -18,6 +17,13 @@ interface BondData {
   atom1: string
   atom2: string
   type: "single" | "double" | "triple"
+}
+
+interface MoleculeData {
+  formula: string
+  elements: Record<string, { radius: number; color: string }>
+  atoms: AtomData[]
+  bonds: BondData[]
 }
 
 // Custom orbit controls implementation to avoid ESM import issues
@@ -385,6 +391,7 @@ export const Canvas3D = forwardRef<any, {}>((props, ref) => {
    * - Triple bonds: three parallel cylinders
    * - Bond radius is 13% of smaller connected atom (good balance of visibility/realism)
    */
+  
   const createBondGeometry = (
     start: THREE.Vector3,
     end: THREE.Vector3,

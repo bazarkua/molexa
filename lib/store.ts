@@ -1,5 +1,19 @@
 import { create } from "zustand"
-import { MoleculeData, RawMoleculeData } from "@/lib/types";
+
+interface MoleculeData {
+  formula: string
+  elements: Record<string, { radius: number; color: string }>
+  atoms: Array<{
+    id: string
+    element: string
+    position: [number, number, number]
+  }>
+  bonds: Array<{
+    atom1: string
+    atom2: string
+    type: "single" | "double" | "triple"  // FIX: Changed from 'string' to literal union
+  }>
+}
 
 interface MoleculeStore {
   moleculeData: MoleculeData | null

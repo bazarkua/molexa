@@ -97,28 +97,37 @@ export default function MoleXa() {
     }
 
     for (let i = 0; i < bondCount; i++) {
-      const bondLine = lines[bondStartLine + i]
-      if (!bondLine || bondLine.length < 9) continue
+  const bondLine = lines[bondStartLine + i]
+  if (!bondLine || bondLine.length < 9) continue
 
-      const atom1Index = Number.parseInt(bondLine.substring(0, 3).trim()) - 1
-      const atom2Index = Number.parseInt(bondLine.substring(3, 6).trim()) - 1
-      const bondTypeNum = Number.parseInt(bondLine.substring(6, 9).trim())
+  const atom1Index = Number.parseInt(bondLine.substring(0, 3).trim()) - 1
+  const atom2Index = Number.parseInt(bondLine.substring(3, 6).trim()) - 1
+  const bondTypeNum = Number.parseInt(bondLine.substring(6, 9).trim())
 
-      let bondType = "single"
-      if (bondTypeNum === 2) bondType = "double"
-      else if (bondTypeNum === 3) bondType = "triple"
-
-      if (atom1Index >= 0 && atom1Index < atoms.length && atom2Index >= 0 && atom2Index < atoms.length) {
-        bonds.push({
-          atom1: atoms[atom1Index].id,
-          atom2: atoms[atom2Index].id,
-          type: bondType,
-        })
-
-        connectivity.get(atom1Index)?.push(atom2Index)
-        connectivity.get(atom2Index)?.push(atom1Index)
-      }
+  // Helper function to ensure proper typing
+  const getBondType = (typeNum: number): "single" | "double" | "triple" => {
+    switch (typeNum) {
+      case 2: return "double"
+      case 3: return "triple"
+      default: return "single"
     }
+  }
+
+  let bondType: "single" | "double" | "triple" = "single"
+  if (bondTypeNum === 2) bondType = "double"
+  else if (bondTypeNum === 3) bondType = "triple"
+
+  if (atom1Index >= 0 && atom1Index < atoms.length && atom2Index >= 0 && atom2Index < atoms.length) {
+    bonds.push({
+      atom1: atoms[atom1Index].id,
+      atom2: atoms[atom2Index].id,
+      type: bondType,
+    })
+
+    connectivity.get(atom1Index)?.push(atom2Index)
+    connectivity.get(atom2Index)?.push(atom1Index)
+  }
+}
 
     // Enhanced 2D to 3D conversion
     const maxZ = Math.max(...atoms.map(atom => Math.abs(atom.position[2])))
