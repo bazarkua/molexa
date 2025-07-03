@@ -18,7 +18,7 @@ export default function MoleXa() {
 
   // Backend URL configuration
   const BACKEND_URL = process.env.NODE_ENV === 'production' 
-    ? 'https://molexa.org' 
+    ? 'https://molexa-api.vercel.app' 
     : 'http://localhost:3001';
 
   const {
