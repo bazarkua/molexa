@@ -308,7 +308,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## Links
 
 - **Live Application**: [molexa.org](https://molexa.org)
-- **API Documentation**: [molexa.org/api](https://molexa.org/api/docs)
+- **API Documentation**: [molexa-api.vercel.app/api/docs](https://molexa-api.vercel.app/api/docs)
 - **Backend Repository**: [molexa-api](https://github.com/bazarkua/molexa-api)
 - **Report Issues**: [GitHub Issues](https://github.com/bazarkua/molexa/issues)
 - **Community Discussions**: [GitHub Discussions](https://github.com/bazarkua/molexa/discussions)
