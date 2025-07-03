@@ -14,7 +14,7 @@
 **moleXa** is a web application that makes it easy to explore and visualize molecules in 3D. Whether you're a student learning chemistry, a teacher looking for better ways to explain molecular structures, or just curious about the molecular world around us, this tool brings chemistry to life in your browser.
 
 **Live Demo:** [molexa.org](https://molexa.org)  
-**API Documentation:** [molexa.org/api](https://molexa-api.vercel.app/api/docs)  
+**API Documentation:** [molexa-api.vercel.app/api/docs](https://molexa-api.vercel.app/api/docs)  
 **Backend API:** [molexa-api repository](https://github.com/bazarkua/molexa-api)
 
 ---
