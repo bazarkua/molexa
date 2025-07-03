@@ -16,7 +16,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://molexa.org/api/:path*',
+        destination: 'https://molexa-api.vercel.app/api/:path*',
       },
     ];
   },
