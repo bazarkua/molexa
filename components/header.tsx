@@ -59,7 +59,7 @@ export function Header({ onFetchMolecule, onDownload }: HeaderProps) {
               asChild
             >
               <a
-                href="https://github.com/yourusername/molexa"
+                href="https://github.com/bazarkua/molexa"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
