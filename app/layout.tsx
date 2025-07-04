@@ -65,8 +65,8 @@ export default function RootLayout({
       <body className={`${inter.variable} font-inter antialiased`}>
         {children}
         <Toaster position="top-right" />
+        <Analytics/>
       </body>
-      <Analytics/>
     </html>
   )
 }
