@@ -1,5 +1,6 @@
-import { Code, User, FlaskConical, ExternalLink, BookOpen, Database } from "lucide-react"
+import { Code, User, FlaskConical, ExternalLink, BookOpen, Database, Link, Globe, Zap } from "lucide-react"
 import Image from "next/image"
+
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
@@ -10,13 +11,13 @@ export function Footer() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
                 <Image
-                                              src="/mox_logo.png"
-                                              alt="moleXa logo"
-                                              width={120}
-                                              height={120}
-                                              className="object-cover"
-                                              priority
-                                            />
+                  src="/mox_logo.png"
+                  alt="moleXa logo"
+                  width={120}
+                  height={120}
+                  className="object-cover"
+                  priority
+                />
               </div>
               <h3 className="text-xl font-light">moleXa</h3>
             </div>
@@ -31,41 +32,94 @@ export function Footer() {
           </div>
 
           {/* Technology Section */}
-           <div>
-            <h3 className="text-lg font-medium mb-4">Technology</h3>
+          <div>
+            <h3 className="text-lg font-medium mb-4">Technology Stack</h3>
             <ul className="space-y-2 text-gray-300">
-              <li>• Next.js </li>
+              <li>• Next.js & React for frontend</li>
               <li>• Three.js for 3D rendering</li>
               <li>• TypeScript for type safety</li>
               <li>• Tailwind CSS for styling</li>
+              <li>• Node.js API backend</li>
               <li>• PubChem REST API integration</li>
-              <li>• High-quality molecular visualization</li>
             </ul>
           </div>
 
-          {/* Data Source Section */}
+          {/* API Integration Section */}
           <div>
             <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-              <Database className="h-5 w-5" />
-              Data Source
+              <Link className="h-5 w-5" />
+              API Integration
             </h3>
             <p className="text-gray-300 mb-4">
-              All molecular data is sourced from the PubChem database, maintained by the National Center for
-              Biotechnology Information (NCBI).
+              Frontend connects to our educational proxy API for enhanced molecular data access with CORS support and educational enhancements.
             </p>
-            <a
-              href="https://pubchem.ncbi.nlm.nih.gov/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              Visit PubChem
-              <ExternalLink className="h-4 w-4" />
-            </a>
+            <div className="space-y-2">
+              <a
+                href="https://molexa-api.vercel.app/api"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm"
+              >
+                <Globe className="h-4 w-4" />
+                API Base URL
+                <ExternalLink className="h-3 w-3" />
+              </a>
+              <br />
+              <a
+                href="https://molexa-api.vercel.app/api/docs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors text-sm"
+              >
+                <BookOpen className="h-4 w-4" />
+                API Documentation
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          </div>
+        </div>
+        {/* Data Source Section */}
+        <div className="border-t border-gray-800 pt-8 mb-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+                <Database className="h-5 w-5" />
+                Data Source
+              </h3>
+              <p className="text-gray-300 mb-4">
+                All molecular data is sourced from the PubChem database, maintained by the National Center for
+                Biotechnology Information (NCBI). Our API enhances this data with educational context.
+              </p>
+              <a
+                href="https://pubchem.ncbi.nlm.nih.gov/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Visit PubChem Database
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
+                <FlaskConical className="h-5 w-5" />
+                API Features
+              </h3>
+              <ul className="space-y-2 text-gray-300 text-sm">
+                <li>• CORS-enabled for web applications</li>
+                <li>• Educational context and explanations</li>
+                <li>• Intelligent rate limiting (5 req/sec)</li>
+                <li>• Response caching for performance</li>
+                <li>• Real-time usage analytics</li>
+                <li>• Safety and toxicity information</li>
+                <li>• Enhanced error handling</li>
+              </ul>
+            </div>
           </div>
         </div>
 
-      {/* PubChem Citation Section */}
+        {/* PubChem Citation Section */}
         <div className="border-t border-gray-800 pt-8 mb-8">
           <h3 className="text-lg font-medium mb-4">PubChem Citation</h3>
           <div className="bg-gray-800 rounded-lg p-6">
@@ -134,7 +188,7 @@ export function Footer() {
                 If you use the educational proxy API, please cite:
               </p>
               <blockquote className="border-l-4 border-purple-500 pl-4 text-sm text-gray-200 font-mono leading-relaxed">
-                Bazarkulov, A. (2025). <em>moleXa API: PubChem Educational Proxy API</em> (Version 2.0.0) [Computer software]. 
+                Bazarkulov, A. (2025). <em>moleXa API: PubChem Educational Proxy API</em> (Version 2.2.0) [Computer software]. 
                 GitHub. https://github.com/bazarkua/molexa-api
               </blockquote>
               <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-400">
@@ -147,12 +201,20 @@ export function Footer() {
                   GitHub Repository
                 </a>
                 <a
-                  href="https://molexa.org/api"
+                  href="https://molexa-api.vercel.app/api/docs"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-purple-400 transition-colors"
                 >
                   API Documentation
+                </a>
+                <a
+                  href="https://molexa-api.vercel.app/api/dashboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-purple-400 transition-colors"
+                >
+                  Live Analytics Dashboard
                 </a>
               </div>
             </div>
@@ -227,15 +289,8 @@ export function Footer() {
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <Image
-                src="/mox_logo.png"
-                alt="moleXa logo"
-                width={32}
-                height={32}
-                className="object-cover rounded"
-                priority
-              />
-              <span>Data from PubChem Database</span>
+              <Database className="h-3 w-3" />
+              <span>Data from PubChem Database via moleXa API</span>
             </div>
           </div>
         </div>

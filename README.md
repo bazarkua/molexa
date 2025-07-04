@@ -54,10 +54,12 @@
 ### Search and Discovery
 ![Search Interface](./docs/screenshots/search-interface.png)
 *Enhanced search with autocomplete suggestions and formula validation*
+![Search Interface by Formula](./docs/screenshots/search-interface-formula.png)
 
 ### Educational Information
 ![Educational Panel](./docs/screenshots/educational-panel.png)
 *Detailed molecular properties, safety data, and educational context*
+![Educational Panel Properties](./docs/screenshots/educational-panel-properties.png)
 
 ### Live Analytics Dashboard
 ![Analytics Dashboard](./docs/screenshots/analytics-dashboard.png)
