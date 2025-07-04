@@ -55,17 +55,6 @@ export function Footer() {
             </p>
             <div className="space-y-2">
               <a
-                href="https://molexa-api.vercel.app/api"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm"
-              >
-                <Globe className="h-4 w-4" />
-                API Base URL
-                <ExternalLink className="h-3 w-3" />
-              </a>
-              <br />
-              <a
                 href="https://molexa-api.vercel.app/api/docs"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -207,14 +196,6 @@ export function Footer() {
                   className="hover:text-purple-400 transition-colors"
                 >
                   API Documentation
-                </a>
-                <a
-                  href="https://molexa-api.vercel.app/api/dashboard"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-purple-400 transition-colors"
-                >
-                  Live Analytics Dashboard
                 </a>
               </div>
             </div>
