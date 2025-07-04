@@ -12,7 +12,7 @@
 
 ## What is this?
 
-moleXa is a modern web application for 3D molecular visualization that makes chemistry accessible and engaging. I built it because existing molecular viewers like mol-view might be too complex to use for beginners, also it requires to have pro subscription if you want to download 3D format object, and moleXa is completely free. It fetches real molecular data from PubChem and renders scientifically accurate 3D structures with educational explanations.
+moleXa is a modern web application for 3D molecular visualization that makes chemistry accessible and engaging. I built it because existing molecular viewers like molview might be too complex to use for beginners, also it requires to have pro subscription if you want to download 3D format object, and moleXa is completely free and doesn't require any account registration. It fetches real molecular data from PubChem and renders scientifically accurate 3D structures with educational explanations.
 
 **Live Demo: [molexa.org](https://molexa.org)**
 
@@ -114,7 +114,7 @@ npm run lint
 
 ## Educational Impact
 
-I want this tool to be used by chemistry students and educators worldwide. The backend API tracks educational usage patterns to understand how molecular visualization supports learning. All tracking is privacy-focused and helps improve the educational experience.
+I want this tool to be used by students and educators worldwide. The backend API tracks educational usage patterns to understand how molecular visualization supports learning. All tracking is privacy-focused and helps improve the educational experience.
 
 ## Related Projects
 

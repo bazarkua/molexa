@@ -4,8 +4,13 @@
   "author": "Adilbek Bazarkulov",
   "keywords": [
     "molexa",
+    "molecular search",
+    "search molecules",
+    "molecule search",
+    "search molecule structure",
+    "search molecules structures",
     "molecular structure",
-    "moleview",
+    "molview",
     "aspirin",
     "water",
     "molecular-visualization",
@@ -31,7 +36,7 @@
     "ammonia",
     "molecule-viewer",
     "molecule-view",
-    "mole-view",
+    "mol-view",
     "common-molecules"
   ],
   "private": true,

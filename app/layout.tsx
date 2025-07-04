@@ -1,4 +1,4 @@
-// app/layout.tsx (or wherever your RootLayout lives)
+// app/layout.tsx
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
