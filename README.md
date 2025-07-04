@@ -247,13 +247,13 @@ I've put a lot of work into making moleXa useful for education and research. If 
 
 #### For the Frontend Application
 ```
-Bazarkulov, A. (2025). moleXa: 3D Molecular Visualization Platform (Version 1.0.0) 
+Bazarkulov, A. (2025). moleXa: 3D Molecular Visualization Platform (Version 2.0.0) 
 [Computer software]. GitHub. https://github.com/bazarkua/molexa
 ```
 
 #### For the Educational API
 ```
-Bazarkulov, A. (2025). moleXa API: PubChem Educational Proxy API (Version 2.0.0) 
+Bazarkulov, A. (2025). moleXa API: PubChem Educational Proxy API (Version 2.2.0) 
 [Computer software]. GitHub. https://github.com/bazarkua/molexa-api
 ```
 
