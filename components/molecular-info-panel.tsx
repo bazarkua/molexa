@@ -87,50 +87,67 @@ export function MolecularInfoPanel({ moleculeData, className }: MolecularInfoPan
     console.log(`Loading enhanced data for CID: ${cid}`)
     
     try {
-      // Load multiple data sources in parallel
-      const [properties, synonyms, educationalData] = await Promise.allSettled([
-        fetchMolecularProperties(cid),
-        fetchSynonyms(cid),
-        fetchEducationalData(cid.toString(), 'cid')
-      ])
-
       const newData: EnhancedMolecularData = {}
 
-      if (properties.status === 'fulfilled') {
-        console.log('Properties data:', properties.value)
-        newData.basicProperties = properties.value.PropertyTable?.Properties?.[0]
-        newData.educationalContext = properties.value.educational_context
-      } else {
-        console.error('Properties fetch failed:', properties.reason)
+      // Load data sequentially with delays to avoid rate limiting
+      console.log('🧪 Fetching molecular properties...')
+      try {
+        const properties = await fetchMolecularProperties(cid)
+        console.log('✅ Properties data loaded')
+        newData.basicProperties = properties.PropertyTable?.Properties?.[0]
+        newData.educationalContext = properties.educational_context
+      } catch (error) {
+        console.error('❌ Properties fetch failed:', error)
       }
 
-      if (synonyms.status === 'fulfilled') {
-        console.log('Synonyms count:', synonyms.value?.length || 0)
-        newData.synonyms = synonyms.value?.slice(0, 8) // Limit to first 8 synonyms
-      } else {
-        console.error('Synonyms fetch failed:', synonyms.reason)
+      // Add delay to respect rate limiting
+      await delay(1200) // 1.2 second delay
+
+      console.log('📚 Fetching synonyms...')
+      try {
+        const synonyms = await fetchSynonyms(cid)
+        console.log(`✅ Synonyms loaded: ${synonyms?.length || 0} found`)
+        newData.synonyms = synonyms?.slice(0, 8) // Limit to first 8 synonyms
+      } catch (error) {
+        console.error('❌ Synonyms fetch failed:', error)
       }
 
-      if (educationalData.status === 'fulfilled') {
-        console.log('Educational data:', educationalData.value)
-        newData.educationalData = educationalData.value
-      } else {
-        console.error('Educational data fetch failed:', educationalData.reason)
+      // Add delay to respect rate limiting
+      await delay(1200) // 1.2 second delay
+
+      console.log('🎓 Fetching educational data...')
+      try {
+        const educationalData = await fetchEducationalData(cid.toString(), 'cid')
+        console.log('✅ Educational data loaded')
+        newData.educationalData = educationalData
+      } catch (error) {
+        console.error('❌ Educational data fetch failed:', error)
       }
 
-      // Try to load safety data (optional)
+      // Add delay to respect rate limiting
+      await delay(1200) // 1.2 second delay
+
+      // Try to load safety data (optional) - this often fails
+      console.log('🛡️ Fetching safety data...')
       try {
         const safety = await fetchSafetyData(cid, 'Toxicity')
         newData.safetyData = safety
-        console.log('Safety data loaded successfully')
+        console.log('✅ Safety data loaded successfully')
       } catch (error) {
-        console.log('Safety data not available for this compound:', error)
+        console.log('ℹ️ Safety data not available for this compound:', error)
+        // Don't treat this as an error since safety data is often unavailable
       }
 
-      console.log('Final enhanced data:', newData)
+      console.log('✅ Enhanced data loading complete:', {
+        hasProperties: !!newData.basicProperties,
+        synonymsCount: newData.synonyms?.length || 0,
+        hasEducationalData: !!newData.educationalData,
+        hasSafetyData: !!newData.safetyData
+      })
+      
       setEnhancedData(newData)
     } catch (error) {
-      console.error('Failed to load enhanced data:', error)
+      console.error('❌ Failed to load enhanced data:', error)
       toast.error('Failed to load additional molecular information')
     } finally {
       setLoading(false)

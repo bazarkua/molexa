@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Canvas3D } from "@/components/canvas-3d"
 import { Footer } from "@/components/footer"
@@ -8,13 +8,35 @@ import { DownloadModal } from "@/components/download-modal"
 import { EnhancedSearch } from "@/components/enhanced-search"
 import { MolecularInfoPanel } from "@/components/molecular-info-panel"
 import { useMoleculeStore } from "@/lib/store"
+import { useApiWakeup, getStatusMessage } from "@/hooks/use-api-wakeup"
 import { searchMolecules, fetchStructureData, fetchEducationalData } from "@/lib/api"
 import { toast } from "sonner"
-import { FlaskConical } from "lucide-react"
+import { 
+  FlaskConical, 
+  Clock, 
+  CheckCircle, 
+  AlertCircle, 
+  X, 
+  RefreshCw, 
+  Wifi,
+  WifiOff,
+  AlertTriangle
+} from "lucide-react"
 
 export default function MoleXa() {
   const [downloadModalOpen, setDownloadModalOpen] = useState(false)
+  const [showApiModal, setShowApiModal] = useState(false)
   const canvasRef = useRef<any>(null)
+
+  // Use the API wake-up hook but don't let it block the app
+  const apiWakeup = useApiWakeup(true)
+
+  // Show modal only if API is not ready and user hasn't dismissed it
+  useEffect(() => {
+    if (apiWakeup.shouldBlockApp && !showApiModal) {
+      setShowApiModal(true)
+    }
+  }, [apiWakeup.shouldBlockApp, showApiModal])
 
   // Backend URL configuration
   const BACKEND_URL = process.env.NODE_ENV === 'production' 
@@ -34,6 +56,19 @@ export default function MoleXa() {
     setGenerationProgress,
     clearMolecule,
   } = useMoleculeStore()
+
+  // Handle force skip
+  const handleForceSkip = () => {
+    apiWakeup.forceSkip()
+    setShowApiModal(false)
+    toast.warning("Continuing without API verification. Some features may be slower or unavailable.")
+  }
+
+  // Handle retry API check
+  const handleRetryApi = async () => {
+    toast.info("Retrying API connection...")
+    await apiWakeup.wakeUpApiManually()
+  }
 
   // Enhanced SDF parsing with better 2D to 3D conversion
   const parseSDF2DTo3D = (sdfData: string, formula: string) => {
@@ -97,37 +132,28 @@ export default function MoleXa() {
     }
 
     for (let i = 0; i < bondCount; i++) {
-  const bondLine = lines[bondStartLine + i]
-  if (!bondLine || bondLine.length < 9) continue
+      const bondLine = lines[bondStartLine + i]
+      if (!bondLine || bondLine.length < 9) continue
 
-  const atom1Index = Number.parseInt(bondLine.substring(0, 3).trim()) - 1
-  const atom2Index = Number.parseInt(bondLine.substring(3, 6).trim()) - 1
-  const bondTypeNum = Number.parseInt(bondLine.substring(6, 9).trim())
+      const atom1Index = Number.parseInt(bondLine.substring(0, 3).trim()) - 1
+      const atom2Index = Number.parseInt(bondLine.substring(3, 6).trim()) - 1
+      const bondTypeNum = Number.parseInt(bondLine.substring(6, 9).trim())
 
-  // Helper function to ensure proper typing
-  const getBondType = (typeNum: number): "single" | "double" | "triple" => {
-    switch (typeNum) {
-      case 2: return "double"
-      case 3: return "triple"
-      default: return "single"
+      let bondType: "single" | "double" | "triple" = "single"
+      if (bondTypeNum === 2) bondType = "double"
+      else if (bondTypeNum === 3) bondType = "triple"
+
+      if (atom1Index >= 0 && atom1Index < atoms.length && atom2Index >= 0 && atom2Index < atoms.length) {
+        bonds.push({
+          atom1: atoms[atom1Index].id,
+          atom2: atoms[atom2Index].id,
+          type: bondType,
+        })
+
+        connectivity.get(atom1Index)?.push(atom2Index)
+        connectivity.get(atom2Index)?.push(atom1Index)
+      }
     }
-  }
-
-  let bondType: "single" | "double" | "triple" = "single"
-  if (bondTypeNum === 2) bondType = "double"
-  else if (bondTypeNum === 3) bondType = "triple"
-
-  if (atom1Index >= 0 && atom1Index < atoms.length && atom2Index >= 0 && atom2Index < atoms.length) {
-    bonds.push({
-      atom1: atoms[atom1Index].id,
-      atom2: atoms[atom2Index].id,
-      type: bondType,
-    })
-
-    connectivity.get(atom1Index)?.push(atom2Index)
-    connectivity.get(atom2Index)?.push(atom1Index)
-  }
-}
 
     // Enhanced 2D to 3D conversion
     const maxZ = Math.max(...atoms.map(atom => Math.abs(atom.position[2])))
@@ -191,7 +217,7 @@ export default function MoleXa() {
       })
     }
 
-    // Apply scaling for better visualization
+    // Apply scaling for better visualization (CRITICAL!)
     const scaleFactor = 1.6
     atoms.forEach(atom => {
       atom.position = atom.position.map((coord: number) => coord * scaleFactor)
@@ -291,6 +317,17 @@ export default function MoleXa() {
       setGenerationStep("Rendering 3D visualization...")
       setGenerationProgress(100)
 
+      // Debug logging
+      console.log('🔬 Setting molecule data:', {
+        hasAtoms: !!enhancedMolecularData.atoms && enhancedMolecularData.atoms.length > 0,
+        atomCount: enhancedMolecularData.atoms?.length || 0,
+        firstAtom: enhancedMolecularData.atoms?.[0],
+        hasElements: !!enhancedMolecularData.elements && Object.keys(enhancedMolecularData.elements).length > 0,
+        elementKeys: Object.keys(enhancedMolecularData.elements || {}),
+        bondCount: enhancedMolecularData.bonds?.length || 0,
+        formula: enhancedMolecularData.formula
+      })
+
       setMoleculeData(enhancedMolecularData)
       
       const atomCount = enhancedMolecularData.atoms.length
@@ -322,19 +359,66 @@ export default function MoleXa() {
     setDownloadModalOpen(true)
   }
 
+  // Get the appropriate icon for current API status
+  const getApiStatusIcon = () => {
+    if (apiWakeup.apiStatus === 'awake') {
+      return <CheckCircle className="w-8 h-8 text-white" />
+    }
+    if (apiWakeup.apiStatus === 'down' || apiWakeup.apiStatus === 'error') {
+      return <WifiOff className="w-8 h-8 text-white" />
+    }
+    if (apiWakeup.isWakingUp || apiWakeup.isLoading) {
+      return <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+    }
+    return <Wifi className="w-8 h-8 text-white" />
+  }
+
+  const getStatusColor = () => {
+    if (apiWakeup.apiStatus === 'awake') return "from-green-500 to-green-600"
+    if (apiWakeup.apiStatus === 'down' || apiWakeup.apiStatus === 'error') return "from-red-500 to-red-600"
+    if (apiWakeup.isWakingUp) return "from-blue-500 to-blue-600"
+    return "from-gray-500 to-gray-600"
+  }
+
+  const getTitle = () => {
+    if (apiWakeup.apiStatus === 'awake') {
+      return "API Ready!"
+    }
+    if (apiWakeup.apiStatus === 'down') {
+      return "API Offline"
+    }
+    if (apiWakeup.apiStatus === 'error') {
+      return "API Connection Failed"
+    }
+    if (apiWakeup.isWakingUp) {
+      return "Waking Up API..."
+    }
+    if (apiWakeup.isLoading) {
+      return "Checking API Status..."
+    }
+    return "API Status Unknown"
+  }
+
+  // Auto-close modal when API becomes ready
+  useEffect(() => {
+    if (apiWakeup.apiStatus === 'awake' && showApiModal) {
+      setShowApiModal(false)
+    }
+  }, [apiWakeup.apiStatus, showApiModal])
+
   return (
     <div className="min-h-screen bg-gray-50 font-inter">
       <Header onFetchMolecule={fetchMoleculeData} onDownload={handleDownload} />
 
       <main className="relative">
-        {/* Main visualization area */}
+        {/* Main visualization area - ALWAYS RENDERED */}
         <div className="max-w-7xl mx-auto p-6 space-y-6">
-          {/* 3D Canvas - Full width */}
+          {/* 3D Canvas - Full width - ALWAYS RENDERED */}
           <div className="w-full">
             <div className="h-[70vh] relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
               <Canvas3D ref={canvasRef} />
 
-              {/* Loading Overlay */}
+              {/* Loading Overlay for molecule processing */}
               {loading && (
                 <div className="absolute inset-0 bg-white/95 backdrop-blur-sm flex items-center justify-center z-50">
                   <div className="bg-white rounded-2xl p-8 shadow-2xl border border-gray-200 max-w-md w-full mx-4">
@@ -374,7 +458,7 @@ export default function MoleXa() {
             </div>
           </div>
 
-          {/* Molecular Information Panel - Full width below canvas */}
+          {/* Molecular Information Panel */}
           {moleculeData ? (
             <MolecularInfoPanel 
               moleculeData={moleculeData}
@@ -390,6 +474,21 @@ export default function MoleXa() {
                 Search for a molecule below to see detailed information including properties, 
                 safety data, and educational context.
               </p>
+              
+              {/* API Status Indicator */}
+              <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm">
+                {apiWakeup.isAwake ? (
+                  <div className="flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-1 rounded-full text-green-700">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span>{getStatusMessage(apiWakeup)}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-amber-700">
+                    <WifiOff className="w-3 h-3" />
+                    <span>Offline Mode - Limited Functionality</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -403,6 +502,14 @@ export default function MoleXa() {
                 Search by molecule name to get smart suggestions, or use exact chemical formulas. 
                 Enhanced with educational information from PubChem database.
               </p>
+              
+              {/* API status warning for search */}
+              {!apiWakeup.isAwake && (
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Running in offline mode - some features may be limited or slower</span>
+                </div>
+              )}
             </div>
 
             <EnhancedSearch 
@@ -443,6 +550,146 @@ export default function MoleXa() {
         canvasRef={canvasRef}
         moleculeData={moleculeData}
       />
+
+      {/* API Status Modal - SEPARATE FROM MAIN APP */}
+      {showApiModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl border border-gray-200 max-w-lg w-full mx-4">
+            <div className="text-center">
+              {/* Close button */}
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={handleForceSkip}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded hover:bg-gray-100"
+                  title="Skip API check and continue"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Status Icon */}
+              <div className={`w-16 h-16 mx-auto mb-6 bg-gradient-to-br ${getStatusColor()} rounded-full flex items-center justify-center`}>
+                {getApiStatusIcon()}
+              </div>
+
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                {getTitle()}
+              </h3>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                <div
+                  className={`bg-gradient-to-r ${getStatusColor().replace('from-', 'from-').replace('to-', 'to-')} h-2 rounded-full transition-all duration-500 ease-out`}
+                  style={{ width: `${apiWakeup.progress}%` }}
+                />
+              </div>
+
+              {/* Current Step */}
+              <p className="text-gray-700 mb-6">{apiWakeup.step}</p>
+
+              {/* Status-specific information boxes */}
+              {(apiWakeup.isLoading || apiWakeup.isWakingUp) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800 mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock className="w-4 w-4" />
+                    <span className="font-medium">Why does this take time?</span>
+                  </div>
+                  <p className="text-xs leading-relaxed">
+                    The moleXa API runs on Vercel serverless functions, which "sleep" after inactivity 
+                    to save resources. The first request after sleep takes 10-30 seconds to wake up.
+                  </p>
+                  {apiWakeup.attemptCount > 1 && (
+                    <p className="text-xs mt-2 text-blue-700">
+                      Attempt {apiWakeup.attemptCount}/3 - Please wait...
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {(apiWakeup.apiStatus === 'down' || apiWakeup.apiStatus === 'error') && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800 mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertTriangle className="w-4 w-4" />
+                    <span className="font-medium">API Connection Failed</span>
+                  </div>
+                  <p className="text-xs leading-relaxed mb-3">
+                    The moleXa API is currently offline or unreachable. You can:
+                  </p>
+                  <ul className="text-xs space-y-1 mb-3 list-disc list-inside">
+                    <li>Wait and retry the connection</li>
+                    <li>Continue with limited functionality (offline mode)</li>
+                    <li>Check if the API service is experiencing issues</li>
+                  </ul>
+                  {apiWakeup.error && (
+                    <p className="text-xs text-red-700 bg-red-100 p-2 rounded mt-2 font-mono">
+                      Error: {apiWakeup.error}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {apiWakeup.apiStatus === 'awake' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm text-green-800 mb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="w-4 w-4" />
+                    <span className="font-medium">API Ready!</span>
+                  </div>
+                  <p className="text-xs leading-relaxed">
+                    moleXa API is now online and ready to serve molecular data. 
+                    Response time: {apiWakeup.responseTime}ms
+                  </p>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex flex-col gap-3">
+                {apiWakeup.apiStatus === 'awake' ? (
+                  <button
+                    onClick={handleForceSkip}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+                  >
+                    Continue to moleXa
+                  </button>
+                ) : (
+                  <>
+                    {(apiWakeup.apiStatus === 'down' || apiWakeup.apiStatus === 'error') && (
+                      <button
+                        onClick={handleRetryApi}
+                        disabled={apiWakeup.isLoading || apiWakeup.isWakingUp}
+                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                      >
+                        {apiWakeup.isLoading || apiWakeup.isWakingUp ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="w-4 h-4" />
+                        )}
+                        Retry Connection
+                      </button>
+                    )}
+                    
+                    <button
+                      onClick={handleForceSkip}
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                    >
+                      <AlertTriangle className="w-4 h-4" />
+                      Continue in Offline Mode
+                    </button>
+                  </>
+                )}
+
+                {/* Skip text */}
+                <p className="text-xs text-gray-500 text-center">
+                  {apiWakeup.apiStatus === 'awake' 
+                    ? "API is ready - click to proceed to the application"
+                    : "Continue without API verification. Some features may be limited."
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
